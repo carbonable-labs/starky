@@ -1,4 +1,4 @@
-import { Provider, ProviderOptions, RawCalldata } from "starknet";
+import { Provider, RawCalldata } from "starknet";
 import { BigNumberish, toBN } from "starknet/utils/number";
 
 type CallContractParameters = {
@@ -24,8 +24,10 @@ export const callContract = async ({
   calldata,
 }: CallContractParameters) => {
   const provider = new Provider({
-    network: starknetNetwork === "mainnet" ? "mainnet-alpha" : "goerli-alpha",
-  } as ProviderOptions);
+    sequencer: {
+      network: (starknetNetwork + "-alpha") as "mainnet-alpha" | "goerli-alpha",
+    },
+  });
   const rawCalldata: RawCalldata = [];
   calldata?.forEach((d) => rawCalldata.push(getRawCallData(d)));
   const response = await provider.callContract({
