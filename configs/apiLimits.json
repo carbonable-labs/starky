@@ -1,0 +1,6 @@
+{
+  "starkscan": {
+    "maxCallsPerSecond": 20,
+    "maxCallStackSize": 100
+  }
+}
