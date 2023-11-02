@@ -1,6 +1,8 @@
 import { Provider, RawCalldata } from "starknet";
 import { BigNumberish, toBN } from "starknet/utils/number";
 
+import { execWithRateLimit } from "../utils/execWithRateLimit";
+
 type CallContractParameters = {
   starknetNetwork: "mainnet" | "goerli";
   contractAddress: string;
@@ -30,10 +32,14 @@ export const callContract = async ({
   });
   const rawCalldata: RawCalldata = [];
   calldata?.forEach((d) => rawCalldata.push(getRawCallData(d)));
-  const response = await provider.callContract({
-    contractAddress,
-    entrypoint,
-    calldata: rawCalldata,
-  });
+  const response = await execWithRateLimit(
+    async () =>
+      await provider.callContract({
+        contractAddress,
+        entrypoint,
+        calldata: rawCalldata,
+      }),
+    "starknet"
+  );
   return response.result;
 };

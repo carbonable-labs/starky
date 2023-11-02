@@ -1,6 +1,10 @@
 {
+  "starknet": {
+    "maxCallsPerSecond": 9,
+    "maxCallStackSize": 30
+  },
   "starkscan": {
-    "maxCallsPerSecond": 20,
+    "maxCallsPerSecond": 15,
     "maxCallStackSize": 100
   }
 }
