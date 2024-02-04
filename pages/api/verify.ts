@@ -73,7 +73,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     });
     DiscordMemberRepository.save(discordMember);
     for (let discordConfig of discordConfigs) {
-      refreshDiscordMember(
+      await refreshDiscordMember(
         discordConfig,
         discordMember,
         modules[discordConfig.starkyModuleType]
