@@ -9,6 +9,7 @@ import { Signature } from "starknet";
 
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
+import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
 import messageToSign from "../../../../utils/starknet/message";
@@ -20,21 +21,32 @@ type Props = {
   starknetNetwork: "goerli" | "mainnet";
 };
 
-const chainIdByNetwork = {
-  goerli: "0x534e5f474f45524c49",
-  mainnet: "0x534e5f4d41494e",
-};
+const getSignatureErrorMessage = (
+  error: string
+): {
+  short: string;
+  advanced?: string;
+} => {
+  console.log("error", error);
+  if (error.includes("Contract not found"))
+    return {
+      short:
+        "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it",
+      advanced: error,
+    };
 
-const getSignatureErrorMessage = (error: string): string => {
   switch (error) {
     case "StarknetErrorCode.UNINITIALIZED_CONTRACT":
-      return "please deploy your wallet on-chain so we can verify your signature";
-
-    case "EMPTY_PUBLIC_KEY":
-      return "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it";
+      return {
+        short:
+          "please deploy your wallet on-chain so we can verify your signature",
+      };
 
     default:
-      return "your signature could not be verified, please try again";
+      return {
+        short: "your signature could not be verified, please try again",
+        advanced: error,
+      };
   }
 };
 
@@ -57,9 +69,29 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       return;
     }
     await strk.enable();
-    const chainId =
-      (strk.account as any).provider.chainId || strk.provider.chainId;
-    if (chainId !== chainIdByNetwork[starknetNetwork]) {
+    const chain =
+      (strk.account as any).provider.chainId ||
+      strk.provider.chainId ||
+      (strk as any).chainId;
+
+    console.log(
+      strk,
+      chain,
+      (strk.account as any).provider.chainId,
+      Object.keys(chainAliasByNetwork)[
+        Object.values(chainAliasByNetwork).findIndex((aliases) =>
+          aliases.includes(chain)
+        )
+      ]
+    );
+    if (
+      starknetNetwork !==
+      Object.keys(chainAliasByNetwork)[
+        Object.values(chainAliasByNetwork).findIndex((aliases) =>
+          aliases.includes(chain)
+        )
+      ]
+    ) {
       setWrongStarknetNetwork(true);
     } else {
       setStarknet(strk);
@@ -101,7 +133,6 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
 
   const sign = useCallback(async () => {
     if (!starknet?.isConnected) return;
-
     try {
       const signature = await starknet.account.signMessage(messageToSign);
       await verifySignature(signature);
@@ -138,7 +169,13 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       )}
       {unverifiedSignature && (
         <div className="danger">
-          {getSignatureErrorMessage(unverifiedSignature)}
+          {getSignatureErrorMessage(unverifiedSignature).short}
+          <br />
+          {getSignatureErrorMessage(unverifiedSignature).advanced && (
+            <span className={styles.advancedErrorMessage}>
+              advanced: {getSignatureErrorMessage(unverifiedSignature).advanced}
+            </span>
+          )}
         </div>
       )}
     </div>
