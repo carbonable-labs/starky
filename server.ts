@@ -5,11 +5,11 @@ import { parse } from "url";
 
 import "reflect-metadata";
 
+import { cleanStacks } from "./utils/execWithRateLimit";
 import config from "./config";
 import launchCron from "./cron";
 import { setupDb } from "./db";
 import { launchBot } from "./discord";
-import { cleanStacks } from "./utils/execWithRateLimit";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, hostname: config.HOST, port: config.PORT });
