@@ -1,4 +1,4 @@
-import { callContract } from "../starknet/call";
+import { callContract } from "../utils/starknet/call";
 
 import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
