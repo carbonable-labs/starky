@@ -5,7 +5,9 @@ import type { StarkyModuleConfig } from "../../starkyModules/types";
 
 import { DiscordServer } from "./DiscordServer";
 
-@Entity()
+@Entity({
+  name: "discord_server_config",
+})
 export class DiscordServerConfig {
   @PrimaryGeneratedColumn("increment")
   id: string;
@@ -14,7 +16,7 @@ export class DiscordServerConfig {
   discordServerId: string;
 
   @Column()
-  starknetNetwork: "mainnet" | "goerli";
+  starknetNetwork: "goerli" | "mainnet";
 
   @Column()
   discordRoleId: string;
