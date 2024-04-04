@@ -26,7 +26,13 @@ export const handleConnectCommand = async (
   client: Client<boolean>,
   restClient: REST
 ) => {
-  if (!interaction.member) return;
+  if (!interaction.member) {
+    await interaction.reply({
+      content: "An error occured: Member not found",
+      ephemeral: true,
+    });
+    return;
+  }
 
   const guildId = interaction.guildId;
   const userId = interaction.member?.user?.id;
